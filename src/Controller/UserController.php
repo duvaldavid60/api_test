@@ -9,7 +9,6 @@ use App\Entity\UserGroup;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Route("/api")
@@ -20,7 +19,7 @@ class UserController extends ApiController
     /**
      * @Route("/users", methods={"GET"}, name="user_list")
      */
-    public function listApiUsers(EntityManagerInterface $em): Response
+    public function listApiUsers(): Response
     {
         $user = $em->getRepository(User::class)
         ->findAll();
@@ -32,7 +31,7 @@ class UserController extends ApiController
      * @Route("/user/{id}", methods={"GET"}, name="user_get")
      * @ParamConverter("id", class="\App\Entity\User")
      */
-    public function getApiUser(EntityManagerInterface $em, User $user): Response
+    public function getApiUser(User $user): Response
     {
         return $this->response($user, Response::HTTP_OK, true);
     }
@@ -40,7 +39,7 @@ class UserController extends ApiController
     /**
      * @Route("/user", methods={"POST"}, name="user_add")
      */
-    public function addApiUser(EntityManagerInterface $em, Request $request): Response
+    public function addApiUser(Request $request): Response
     {
         $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
         $em->persist($user);
@@ -53,7 +52,7 @@ class UserController extends ApiController
      * @Route("/user/{id}", methods={"PUT"}, name="user_update")
      * @ParamConverter("id", class="\App\Entity\User")
      */
-    public function updateApiUser(EntityManagerInterface $em, Request $request, User $user): Response
+    public function updateApiUser(Request $request, User $user): Response
     {
         $new = json_decode($request->getContent(), true);
         if (!isset($new['name']) || !isset($new['password']) || is_null($new['name']) || is_null($new['password'])) {
@@ -71,7 +70,7 @@ class UserController extends ApiController
      * @Route("/user/{id}", methods={"DELETE"}, name="user_delete")
      * @ParamConverter("id", class="\App\Entity\User")
      */
-    public function deleteApiUser(EntityManagerInterface $em, User $user): Response
+    public function deleteApiUser(User $user): Response
     {
         $userId = $user->getId();
         $em->remove($user);
@@ -84,7 +83,7 @@ class UserController extends ApiController
      * @Route("/user/{id}/groups", methods={"GET"}, name="user_list_groups")
      * @ParamConverter("id", class="\App\Entity\User")
      */
-    public function getUserGroups(EntityManagerInterface $em, User $user): Response
+    public function getUserGroups(User $user): Response
     {
         return $this->response($user->getUserGroups(), Response::HTTP_OK, true);
     }
