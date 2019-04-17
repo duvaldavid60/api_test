@@ -9,6 +9,7 @@ use App\Entity\UserGroup;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Route("/api")
@@ -18,9 +19,8 @@ class UserGroupController extends ApiController
     /**
      * @Route("/groups", methods={"GET"}, name="user_group_list")
      */
-    public function listGroups()
+    public function listGroups(EntityManagerInterface $em)
     {
-        $em = $this->getDoctrine()->getManager();
         $groups = $em->getRepository(UserGroup::class)
         ->findAll();
 
@@ -31,7 +31,7 @@ class UserGroupController extends ApiController
      * @Route("/group/{id}", methods={"GET"}, name="user_group_get")
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      */
-    public function getGroup(UserGroup $group)
+    public function getGroup(EntityManagerInterface $em, UserGroup $group)
     {
         return $this->response($group, Response::HTTP_OK, true);
     }
@@ -39,9 +39,8 @@ class UserGroupController extends ApiController
     /**
      * @Route("/group", methods={"POST"}, name="user_group_add")
      */
-    public function addGroup(Request $request)
+    public function addGroup(EntityManagerInterface $em, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
         $group = $this->serializer->deserialize($request->getContent(), UserGroup::class, 'json');
         $em->persist($group);
         $em->flush();
@@ -53,9 +52,8 @@ class UserGroupController extends ApiController
      * @Route("/group/{id}", methods={"POST"}, name="user_group_update")
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      */
-    public function updateGroup(Request $request, UserGroup $group)
+    public function updateGroup(EntityManagerInterface $em, Request $request, UserGroup $group)
     {
-        $em = $this->getDoctrine()->getManager();
         $new = json_decode($request->getContent(), true);
         if (!isset($new['name']) || is_null($new['name'])) {
             return $this->response('Invalid object userGroup', Response::HTTP_BAD_REQUEST);
@@ -71,7 +69,7 @@ class UserGroupController extends ApiController
      * @Route("/group/{id}", methods={"DELETE"}, name="user_group_delete")
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      */
-    public function deleteGroup(UserGroup $group)
+    public function deleteGroup(EntityManagerInterface $em, UserGroup $group)
     {
         $groupId = $group->getId();
         $em = $this->getDoctrine()->getManager();
@@ -86,10 +84,8 @@ class UserGroupController extends ApiController
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      * @ParamConverter("userId", class="\App\Entity\User", options={"mapping": {"userId" : "id"}})
      */
-    public function addUsertoGroup(UserGroup $group, User $user)
+    public function addUsertoGroup(EntityManagerInterface $em, UserGroup $group, User $user)
     {
-        $em = $this->getDoctrine()->getManager();
-
         try {
             $group->addUser($user);
         } catch (\Exception $exception) {
@@ -108,9 +104,8 @@ class UserGroupController extends ApiController
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      * UserGroupController@ParamConverter("userId", class="\App\Entity\User", options={"mapping": {"userId" : "id"}})
      */
-    public function removeUserFromGroup(UserGroup $group, User $user)
+    public function removeUserFromGroup(EntityManagerInterface $em, UserGroup $group, User $user)
     {
-        $em = $this->getDoctrine()->getManager();
         try {
             $group->removeUser($user);
         } catch (\Exception $exception) {
@@ -127,10 +122,8 @@ class UserGroupController extends ApiController
      * @Route("/group/{id}/users", methods={"GET"}, name="user_group_list_users")
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      */
-    public function getGroupUsers(UserGroup $group)
+    public function getGroupUsers(EntityManagerInterface $em, UserGroup $group)
     {
-        $em = $this->getDoctrine()->getManager();
-
         return $this->response($group->getUsers(), Response::HTTP_OK, true);
     }
 }

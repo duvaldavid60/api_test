@@ -9,6 +9,7 @@ use App\Entity\UserGroup;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @Route("/api")
@@ -19,9 +20,8 @@ class UserController extends ApiController
     /**
      * @Route("/users", methods={"GET"}, name="user_list")
      */
-    public function listApiUsers()
+    public function listApiUsers(EntityManagerInterface $em)
     {
-        $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository(User::class)
         ->findAll();
 
@@ -32,7 +32,7 @@ class UserController extends ApiController
      * @Route("/user/{id}", methods={"GET"}, name="user_get")
      * @ParamConverter("id", class="\App\Entity\User")
      */
-    public function getApiUser(User $user)
+    public function getApiUser(EntityManagerInterface $em, User $user)
     {
         return $this->response($user, Response::HTTP_OK, true);
     }
@@ -40,9 +40,8 @@ class UserController extends ApiController
     /**
      * @Route("/user", methods={"POST"}, name="user_add")
      */
-    public function addApiUser(Request $request)
+    public function addApiUser(EntityManagerInterface $em, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
         $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
         $em->persist($user);
         $em->flush();
@@ -54,9 +53,8 @@ class UserController extends ApiController
      * @Route("/user/{id}", methods={"PUT"}, name="user_update")
      * @ParamConverter("id", class="\App\Entity\User")
      */
-    public function updateApiUser(Request $request, User $user)
+    public function updateApiUser(EntityManagerInterface $em, Request $request, User $user)
     {
-        $em = $this->getDoctrine()->getManager();
         $new = json_decode($request->getContent(), true);
         if (!isset($new['name']) || !isset($new['password']) || is_null($new['name']) || is_null($new['password'])) {
             return $this->response('Invalid object user', Response::HTTP_BAD_REQUEST);
@@ -73,10 +71,9 @@ class UserController extends ApiController
      * @Route("/user/{id}", methods={"DELETE"}, name="user_delete")
      * @ParamConverter("id", class="\App\Entity\User")
      */
-    public function deleteApiUser(User $user)
+    public function deleteApiUser(EntityManagerInterface $em, User $user)
     {
         $userId = $user->getId();
-        $em = $this->getDoctrine()->getManager();
         $em->remove($user);
         $em->flush();
 
@@ -87,10 +84,8 @@ class UserController extends ApiController
      * @Route("/user/{id}/groups", methods={"GET"}, name="user_list_groups")
      * @ParamConverter("id", class="\App\Entity\User")
      */
-    public function getUserGroups(User $user)
+    public function getUserGroups(EntityManagerInterface $em, User $user)
     {
-        $em = $this->getDoctrine()->getManager();
-
         return $this->response($user->getUserGroups(), Response::HTTP_OK, true);
     }
 }
