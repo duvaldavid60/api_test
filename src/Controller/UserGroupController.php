@@ -19,7 +19,7 @@ class UserGroupController extends ApiController
     /**
      * @Route("/groups", methods={"GET"}, name="user_group_list")
      */
-    public function listGroups(EntityManagerInterface $em)
+    public function listGroups(EntityManagerInterface $em): Response
     {
         $groups = $em->getRepository(UserGroup::class)
         ->findAll();
@@ -31,7 +31,7 @@ class UserGroupController extends ApiController
      * @Route("/group/{id}", methods={"GET"}, name="user_group_get")
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      */
-    public function getGroup(EntityManagerInterface $em, UserGroup $group)
+    public function getGroup(EntityManagerInterface $em, UserGroup $group): Response
     {
         return $this->response($group, Response::HTTP_OK, true);
     }
@@ -39,7 +39,7 @@ class UserGroupController extends ApiController
     /**
      * @Route("/group", methods={"POST"}, name="user_group_add")
      */
-    public function addGroup(EntityManagerInterface $em, Request $request)
+    public function addGroup(EntityManagerInterface $em, Request $request): Response
     {
         $group = $this->serializer->deserialize($request->getContent(), UserGroup::class, 'json');
         $em->persist($group);
@@ -52,7 +52,7 @@ class UserGroupController extends ApiController
      * @Route("/group/{id}", methods={"POST"}, name="user_group_update")
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      */
-    public function updateGroup(EntityManagerInterface $em, Request $request, UserGroup $group)
+    public function updateGroup(EntityManagerInterface $em, Request $request, UserGroup $group): Response
     {
         $new = json_decode($request->getContent(), true);
         if (!isset($new['name']) || is_null($new['name'])) {
@@ -69,7 +69,7 @@ class UserGroupController extends ApiController
      * @Route("/group/{id}", methods={"DELETE"}, name="user_group_delete")
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      */
-    public function deleteGroup(EntityManagerInterface $em, UserGroup $group)
+    public function deleteGroup(EntityManagerInterface $em, UserGroup $group): Response
     {
         $groupId = $group->getId();
         $em = $this->getDoctrine()->getManager();
@@ -84,7 +84,7 @@ class UserGroupController extends ApiController
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      * @ParamConverter("userId", class="\App\Entity\User", options={"mapping": {"userId" : "id"}})
      */
-    public function addUsertoGroup(EntityManagerInterface $em, UserGroup $group, User $user)
+    public function addUsertoGroup(EntityManagerInterface $em, UserGroup $group, User $user): Response
     {
         try {
             $group->addUser($user);
@@ -104,7 +104,7 @@ class UserGroupController extends ApiController
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      * UserGroupController@ParamConverter("userId", class="\App\Entity\User", options={"mapping": {"userId" : "id"}})
      */
-    public function removeUserFromGroup(EntityManagerInterface $em, UserGroup $group, User $user)
+    public function removeUserFromGroup(EntityManagerInterface $em, UserGroup $group, User $user): Response
     {
         try {
             $group->removeUser($user);
@@ -122,7 +122,7 @@ class UserGroupController extends ApiController
      * @Route("/group/{id}/users", methods={"GET"}, name="user_group_list_users")
      * @ParamConverter("id", class="\App\Entity\UserGroup")
      */
-    public function getGroupUsers(EntityManagerInterface $em, UserGroup $group)
+    public function getGroupUsers(EntityManagerInterface $em, UserGroup $group): Response
     {
         return $this->response($group->getUsers(), Response::HTTP_OK, true);
     }

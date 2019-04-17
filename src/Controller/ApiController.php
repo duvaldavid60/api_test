@@ -16,7 +16,7 @@ class ApiController extends AbstractController
         $this->serializer = $serializer;
     }
 
-    protected function response($responseData, $resultCode, $enableCache = false, $cacheTtl = 60)
+    protected function response($responseData, $resultCode, $enableCache = false, $cacheTtl = 60): Response
     {
         $response = new Response(
             $this->serializer->serialize($responseData, 'json'),
