@@ -20,7 +20,7 @@ class UserGroupController extends ApiController
      */
     public function listGroups(): Response
     {
-        $groups = $em->getRepository(UserGroup::class)
+        $groups = $this->em->getRepository(UserGroup::class)
         ->findAll();
 
         return $this->response($groups, Response::HTTP_OK, true);
@@ -41,8 +41,8 @@ class UserGroupController extends ApiController
     public function addGroup(Request $request): Response
     {
         $group = $this->serializer->deserialize($request->getContent(), UserGroup::class, 'json');
-        $em->persist($group);
-        $em->flush();
+        $this->em->persist($group);
+        $this->em->flush();
 
         return $this->response($group, Response::HTTP_CREATED);
     }
@@ -59,8 +59,8 @@ class UserGroupController extends ApiController
         }
 
         $group->setName($new['name']);
-        $em->persist($group);
-        $em->flush();
+        $this->em->persist($group);
+        $this->em->flush();
         return $this->response($group, Response::HTTP_OK);
     }
 
@@ -71,9 +71,9 @@ class UserGroupController extends ApiController
     public function deleteGroup(UserGroup $group): Response
     {
         $groupId = $group->getId();
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($group);
-        $em->flush();
+        $this->em = $this->getDoctrine()->getManager();
+        $this->em->remove($group);
+        $this->em->flush();
 
         return $this->response("Group " . $groupId . " is deleted", Response::HTTP_OK);
     }
@@ -91,9 +91,9 @@ class UserGroupController extends ApiController
             return $this->response("Group : ". $group->getId(). " already contain User : ". $user->getId(), Response::HTTP_BAD_REQUEST);
         };
 
-        $em->persist($group);
-        $em->persist($user);
-        $em->flush();
+        $this->em->persist($group);
+        $this->em->persist($user);
+        $this->em->flush();
 
         return $this->response("User : ".$user->getId()." added to group:". $group->getId(), Response::HTTP_OK);
     }
@@ -110,9 +110,9 @@ class UserGroupController extends ApiController
         } catch (\Exception $exception) {
             return $this->response("Group : ".$group->getId()."  dosen't contain User : ".$user->getId(), Response::HTTP_BAD_REQUEST);
         }
-        $em->persist($user);
-        $em->persist($group);
-        $em->flush();
+        $this->em->persist($user);
+        $this->em->persist($group);
+        $this->em->flush();
 
         return $this->response("User : ".$user->getId()."  remove from group :". $group->getId(), Response::HTTP_OK);
     }

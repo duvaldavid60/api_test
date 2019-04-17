@@ -21,7 +21,7 @@ class UserController extends ApiController
      */
     public function listApiUsers(): Response
     {
-        $user = $em->getRepository(User::class)
+        $user = $this->em->getRepository(User::class)
         ->findAll();
 
         return $this->response($user, Response::HTTP_OK, true);
@@ -42,8 +42,8 @@ class UserController extends ApiController
     public function addApiUser(Request $request): Response
     {
         $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
-        $em->persist($user);
-        $em->flush();
+        $this->em->persist($user);
+        $this->em->flush();
 
         return $this->response($user, Response::HTTP_CREATED);
     }
@@ -61,8 +61,8 @@ class UserController extends ApiController
 
         $user->setName($new['name']);
         $user->setPassword($new['password']);
-        $em->persist($user);
-        $em->flush();
+        $this->em->persist($user);
+        $this->em->flush();
         return $this->response($user, Response::HTTP_OK);
     }
 
@@ -73,8 +73,8 @@ class UserController extends ApiController
     public function deleteApiUser(User $user): Response
     {
         $userId = $user->getId();
-        $em->remove($user);
-        $em->flush();
+        $this->em->remove($user);
+        $this->em->flush();
 
         return $this->response("User " . $userId . " is deleted", Response::HTTP_OK);
     }
